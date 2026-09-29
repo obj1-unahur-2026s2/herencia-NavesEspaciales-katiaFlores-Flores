@@ -165,6 +165,17 @@ class NaveCombate inherits Nave{
 }
 
 
+//Dos variantes de Naves
+class NaveHospital inherits NaveDePasajeros{
+
+
+}
+
+class NaveCombateSigilosa inherits NaveCombate{
+
+
+}
+
 //relajo
 // estaDeRelajo(): esta tranquila y poca actividad esta en super, es decir, Nave. Pero..
 //En poca actividad va a ser un metodo abstracto, va a estar definido en dos naves: NaveBaliza y NaveDePasajeros
