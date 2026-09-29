@@ -1,6 +1,7 @@
 class Nave{
   var velocidad
   var direccion 
+  var combustible = 500
 
 
   method acelerar(cuanto){
@@ -32,7 +33,19 @@ class Nave{
     direccion -= 1.max(-10)
   }
 
-  method prepararViaje()
+  method prepararViaje(){
+    self.cargarCombustible(30000)
+    self.acelerar(5000)
+  }
+
+  method cargarCombustible(cantCombustible){
+    combustible += cantCombustible
+
+  }
+
+  method descargarCombustible(cantCombustible){
+    combustible -= cantCombustible
+  }
 
 }
 
@@ -50,11 +63,15 @@ class NaveBaliza inherits Nave{
   }
 
   override method prepararViaje(){
-
+    super();
+    self.cambiarColorDeBaliza.("verde")
+    self.ponerseParaleloAlSol()
   }
 
 
 }
+
+
 
 
 class NaveDePasajeros inherits Nave{
@@ -83,17 +100,23 @@ class NaveDePasajeros inherits Nave{
   }
 
   override method prepararViaje(){
-
+    super();
+    self.cargarComida(4)
+    self.cargarBebidas(6)
+    self.acercarseUnPocoAlSol()
   }
 
 
 }
 
 
+
+
 class NaveCombate inherits Nave{
 
   var estaInvisible = false
   var misilesDesplegados = false
+  var mensajesEmitidos = #[]
   
   // Invisible
   method estaInvisible() = estaInvisible
@@ -120,37 +143,28 @@ class NaveCombate inherits Nave{
   }
 
   // Emitir mensajes
-  method emitirMensaje(mensaje){
-    
-  }
+  method emitirMensaje(mensaje) = mensajesEmitidos.add(mensaje)
 
-  method mensajesEmitidos(){
+  method mensajesEmitidos() mensajesEmitidos
 
-  }
+  method primerMensajeEmitido() = mensajesEmitidos.first()
 
-  method primerMensajeEmitido(){
+  method ultimoMensajeEmitido() = mensajesEmitidos.last()
 
-  }
+  method esEscueta() = mensajesEmitidos.all( {m => m.size() < 30})
 
-  method ultimoMensajeEmitido(){
-
-  }
-
-  method esEscueta(){
-
-  }
-
-  method emitioMensaje(mensaje){
-
-  }
+  method emitioMensaje(mensaje) 0 =  mensajesEmitidos.isEmpty()
 
 
   override method prepararViaje(){
-
+    super();
+    self.replegarMisiles()
+    self.acelerar(15000)
+    self.emitirMensaje("Saliendo en misión")
   }
 }
 
-//NOTAS:
+
 //relajo
 // estaDeRelajo(): esta tranquila y poca actividad esta en super, es decir, Nave. Pero..
 //En poca actividad va a ser un metodo abstracto, va a estar definido en dos naves: NaveBaliza y NaveDePasajeros
