@@ -21,7 +21,7 @@ class Nave{
     direccion = -10 
   }
 
-  method ponerseParaleloAlSol{
+  method ponerseParaleloAlSol(){
     direccion = 0
   }
 
@@ -47,6 +47,20 @@ class Nave{
     combustible -= cantCombustible
   }
 
+  method naveEstaTranquila() = combustible >= 4000 and velocidad < 12000
+
+  method recibirAmenaza() {
+    self.escapar()
+    self.avisar()
+  }
+
+  method escapar() 
+
+  method avisar() 
+
+  method estaNaveRelajado() = self.naveEstaTranquila() and self.tienePocaActividad()
+
+  method tienePocaActividad() = true
 }
 
 
@@ -54,20 +68,33 @@ class Nave{
 
 
 class NaveBaliza inherits Nave{
-  var color = "rojo"
+  var color 
+  var cambioDeColor = false
 
   method cambiarColorDeBaliza(colorNuevo){
 
     color = colorNuevo
+    cambioDeColor = true
 
   }
 
   override method prepararViaje(){
     super();
-    self.cambiarColorDeBaliza.("verde")
+    self.cambiarColorDeBaliza("verde")
     self.ponerseParaleloAlSol()
   }
 
+  override method naveEstaTranquila() = super() and color != "rojo"
+
+  override method escapar(){
+    self.irHaciaElSol()
+  } 
+
+  override method avisar(){
+    self.cambiarColorDeBaliza("rojo")
+  }
+
+  override method tienePocaActividad() = !cambioDeColor
 
 }
 
@@ -75,11 +102,12 @@ class NaveBaliza inherits Nave{
 
 
 class NaveDePasajeros inherits Nave{
-  const cantidadDePasajerods //Se le indicara en cada nave.
+  const cantidadDePasajeros //Se le indicara en cada nave.
   var comidas
   var bebidas
+  var racionesRepartidasPorComida = 0
 
-  method cantidadDePasajerods() = cantidadDePasajerods
+  method cantidadDePasajerods() = cantidadDePasajeros
 
   //Cargar y descargar bebidas y comidas
 
@@ -89,6 +117,7 @@ class NaveDePasajeros inherits Nave{
 
   method descargarComidas(cantidad){
     comidas -= cantidad
+    racionesRepartidasPorComida += cantidad
   }
 
   method cargarBebidas(cantidad){
@@ -106,6 +135,17 @@ class NaveDePasajeros inherits Nave{
     self.acercarseUnPocoAlSol()
   }
 
+  override method escapar(){
+    velocidad = velocidad * 2
+  } 
+
+  override method avisar(){
+    self.descargarComidas(2)
+    self.descargarBebidas(2)
+  }
+
+  override method tienePocaActividad() = racionesRepartidasPorComida <= 50
+
 
 }
 
@@ -115,8 +155,8 @@ class NaveDePasajeros inherits Nave{
 class NaveCombate inherits Nave{
 
   var estaInvisible = false
-  var misilesDesplegados = false
-  var mensajesEmitidos = #[]
+  var misilesDesplegados 
+  const mensajesEmitidos = []
   
   // Invisible
   method estaInvisible() = estaInvisible
@@ -145,7 +185,7 @@ class NaveCombate inherits Nave{
   // Emitir mensajes
   method emitirMensaje(mensaje) = mensajesEmitidos.add(mensaje)
 
-  method mensajesEmitidos() mensajesEmitidos
+  method mensajesEmitidos() = mensajesEmitidos
 
   method primerMensajeEmitido() = mensajesEmitidos.first()
 
@@ -153,31 +193,54 @@ class NaveCombate inherits Nave{
 
   method esEscueta() = mensajesEmitidos.all( {m => m.size() < 30})
 
-  method emitioMensaje(mensaje) 0 =  mensajesEmitidos.isEmpty()
+  method emitioMensaje(mensaje) =  mensajesEmitidos.any({ m => m == mensaje})
 
-
+  //Sobrescribiendo methodos de la superClase
   override method prepararViaje(){
     super();
     self.replegarMisiles()
     self.acelerar(15000)
     self.emitirMensaje("Saliendo en misión")
   }
+
+  override method escapar(){
+    self.acercarseUnPocoAlSol()
+    self.acercarseUnPocoAlSol()
+  } 
+
+  override method avisar(){
+    self.emitirMensaje("Amenaza recibida")
+  }
+
+ 
 }
 
 
 //Dos variantes de Naves
 class NaveHospital inherits NaveDePasajeros{
+  var tieneQuirofanos
 
+  method tieneQuirofanos() = tieneQuirofanos
 
+  override method naveEstaTranquila() = super() and !self.tieneQuirofanos()
+
+  override method recibirAmenaza(){
+    super();
+    tieneQuirofanos = true
+  } 
+  
 }
 
 class NaveCombateSigilosa inherits NaveCombate{
+ 
+  override method naveEstaTranquila() = super() and !self.misilesDesplegados() and self.estaInvisible()
+  
+  override method recibirAmenaza(){
+    super();
+    self.ponerseInvisible()
+    self.desplegarMisiles()
 
+  } 
 
 }
-
-//relajo
-// estaDeRelajo(): esta tranquila y poca actividad esta en super, es decir, Nave. Pero..
-//En poca actividad va a ser un metodo abstracto, va a estar definido en dos naves: NaveBaliza y NaveDePasajeros
-//¿Pero que pasa con las demas?, las demas Naves necesitaran un neutro, para eso usamos true, porque true and true no afecta.
 
